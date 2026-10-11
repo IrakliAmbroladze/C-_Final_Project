@@ -4,17 +4,23 @@
     {
         static void Main(string[] args)
         {
-            Console.Write("Enter N: ");
-            int n = int.Parse(Console.ReadLine()!);
-
-            int sum = 0;
-
-            for (int i = 1; i <= n; i++)
+            Console.Write("In array of: ");
+            Console.Write("[ ");
+            int[] numbers = { 12, 45, 7, 89, 23 };
+            int max = numbers[0];
+            for (int i = 0; i < numbers.Length; i++)
             {
-                sum += i;
+                bool isLast = i == numbers.Length - 1;
+                Console.Write($"{numbers[i]}");
+                Console.Write(isLast ? "" : ", ");
+                if (numbers[i] > max)
+                {
+                    max = numbers[i];
+                }
             }
+            Console.Write(" ]\n");
 
-            Console.WriteLine($"Sum = {sum}");
+            Console.WriteLine($"Maximum element is: {max}");
         }
     }
 }
