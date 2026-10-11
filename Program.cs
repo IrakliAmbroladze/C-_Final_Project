@@ -4,7 +4,17 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.Write("Enter N: ");
+            int n = int.Parse(Console.ReadLine()!);
+
+            int sum = 0;
+
+            for (int i = 1; i <= n; i++)
+            {
+                sum += i;
+            }
+
+            Console.WriteLine($"Sum = {sum}");
         }
     }
 }
