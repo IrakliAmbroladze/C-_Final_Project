@@ -2,16 +2,39 @@
 {
     internal class Program
     {
+        static bool IsPalindrome(string text)
+        {
+            string cleaned = new string(
+                text.Where(char.IsLetterOrDigit)
+                    .Select(char.ToLowerInvariant)
+                    .ToArray()
+            );
+
+            int left = 0;
+            int right = cleaned.Length - 1;
+
+            while (left < right)
+            {
+                if (cleaned[left] != cleaned[right])
+                {
+                    return false;
+                }
+
+                left++;
+                right--;
+            }
+
+            return true;
+        }
+
         static void Main(string[] args)
         {
-            Console.Write("Enter a word: ");
+            Console.WriteLine("The text: ");
+            string text = "A man, a plan, a canal: Panama";
 
-            string word = Console.ReadLine() ?? "";
-            char[] chars = word.ToCharArray();
-            Array.Reverse(chars);
-            string reversed = new string(chars);
-
-            Console.WriteLine($"Reversed: {reversed}");
+            Console.WriteLine(text);
+            Console.WriteLine();
+            Console.WriteLine(IsPalindrome(text) ? "Is Palindrome" : "Is not Palindrome");
         }
     }
 }
