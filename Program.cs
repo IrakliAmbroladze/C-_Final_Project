@@ -1,40 +1,47 @@
-﻿namespace final_project
+﻿using System.Text.RegularExpressions;
+
+namespace final_project
 {
     internal class Program
     {
-        static bool IsPalindrome(string text)
-        {
-            string cleaned = new string(
-                text.Where(char.IsLetterOrDigit)
-                    .Select(char.ToLowerInvariant)
-                    .ToArray()
-            );
-
-            int left = 0;
-            int right = cleaned.Length - 1;
-
-            while (left < right)
-            {
-                if (cleaned[left] != cleaned[right])
-                {
-                    return false;
-                }
-
-                left++;
-                right--;
-            }
-
-            return true;
-        }
-
         static void Main(string[] args)
         {
-            Console.WriteLine("The text: ");
-            string text = "A man, a plan, a canal: Panama";
-
+            string text = @"
+            Csharp is a programming language.
+            Csharp is powerful and C# is useful.
+            Programming requires a practice.
+            Practice makes programming easier.
+        ";
+            Console.WriteLine($"In text: ");
             Console.WriteLine(text);
-            Console.WriteLine();
-            Console.WriteLine(IsPalindrome(text) ? "Is Palindrome" : "Is not Palindrome");
+
+            string[] words = Regex
+                .Matches(text.ToLowerInvariant(), @"\b[\w']+\b")
+                .Select(match => match.Value)
+                .ToArray();
+
+            Dictionary<string, int> frequency = new();
+
+            foreach (string word in words)
+            {
+                if (frequency.ContainsKey(word))
+                {
+                    frequency[word]++;
+                }
+                else
+                {
+                    frequency[word] = 1;
+                }
+            }
+
+            Console.WriteLine("\nTop 5 words:");
+
+            foreach (var item in frequency.OrderByDescending(x => x.Value)
+                                          .ThenBy(x => x.Key)
+                                          .Take(5))
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
         }
     }
 }
