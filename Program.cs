@@ -1,46 +1,49 @@
-﻿using System.Text.RegularExpressions;
-
-namespace final_project
+﻿namespace final_project
 {
     internal class Program
     {
+        static void PrintArray(int[] arr)
+        {
+            Console.Write("[ ");
+            for (int i = 0; i < arr.Length; i++)
+            {
+                bool isLast = i == arr.Length - 1;
+                Console.Write($"{arr[i]}");
+                Console.Write(isLast ? "" : ", ");
+            }
+            Console.Write(" ]");
+
+        }
+        static int[] TwoSum(int[] nums, int target)
+        {
+            Dictionary<int, int> seen = new();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                int complement = target - nums[i];
+                if (seen.TryGetValue(complement, out int index))
+                    return new[] { index, i };
+                seen[nums[i]] = i;
+            }
+            return Array.Empty<int>();
+        }
         static void Main(string[] args)
         {
-            string text = @"
-            Csharp is a programming language.
-            Csharp is powerful and C# is useful.
-            Programming requires a practice.
-            Practice makes programming easier.
-        ";
-            Console.WriteLine($"In text: ");
-            Console.WriteLine(text);
+            int[] numbers = { 2, 4, 7, 11, 15 };
+            Console.Write("In Array of: ");
+            PrintArray(numbers);
+            int target = 9;
 
-            string[] words = Regex
-                .Matches(text.ToLowerInvariant(), @"\b[\w']+\b")
-                .Select(match => match.Value)
-                .ToArray();
+            int[] result = TwoSum(numbers, target);
 
-            Dictionary<string, int> frequency = new();
-
-            foreach (string word in words)
+            if (result.Length == 2)
             {
-                if (frequency.ContainsKey(word))
-                {
-                    frequency[word]++;
-                }
-                else
-                {
-                    frequency[word] = 1;
-                }
+                Console.Write($"\nTarget {target} is sum of numbers at ");
+                Console.Write(
+                    $"indices: {result[0]}, {result[1]}\n");
             }
-
-            Console.WriteLine("\nTop 5 words:");
-
-            foreach (var item in frequency.OrderByDescending(x => x.Value)
-                                          .ThenBy(x => x.Key)
-                                          .Take(5))
+            else
             {
-                Console.WriteLine($"{item.Key}: {item.Value}");
+                Console.WriteLine("No solution found.");
             }
         }
     }
