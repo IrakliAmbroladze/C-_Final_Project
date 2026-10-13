@@ -1,32 +1,40 @@
-﻿class Student
+﻿class MyStack<T>
 {
-    public string Name { get; set; } = "";
-    public int Grade { get; set; }
-    public double Score { get; set; }
+    private T[] items = new T[4];
+    private int count;
+    public int Count => count;
+    public void Push(T item)
+    {
+        if (count == items.Length) Array.Resize(ref items, items.Length * 2);
+        items[count++] = item;
+    }
+    public T Pop()
+    {
+        if (count == 0) throw new InvalidOperationException("Stack is empty.");
+        T item = items[--count];
+        items[count] = default!;
+        return item;
+    }
+    public T Peek()
+    {
+        if (count == 0) throw new InvalidOperationException("Stack is empty.");
+        return items[count - 1];
+    }
 }
 class Program
 {
     static void Main()
     {
-        List<Student> students = new()
-        {
-            new Student { Name = "Anna", Grade = 10, Score = 85 },
-            new Student { Name = "David", Grade = 10, Score = 92 },
-            new Student { Name = "Maria", Grade = 10, Score = 78 },
-            new Student { Name = "John", Grade = 11, Score = 88 },
-            new Student { Name = "Kate", Grade = 11, Score = 96 },
-            new Student { Name = "Alex", Grade = 11, Score = 80 }
-        };
-        Console.WriteLine("Average score per class:");
-        var averages = students.GroupBy(s => s.Grade).Select(g => new { Grade = g.Key, Average = g.Average(s => s.Score) });
-        foreach (var item in averages) Console.WriteLine($"Grade {item.Grade}: {item.Average:F2}");
-        Console.WriteLine("\nBest student per class:");
-        var bestStudents = students.GroupBy(s => s.Grade).Select(g => g.OrderByDescending(s => s.Score).First());
-        foreach (var student in bestStudents) Console.WriteLine($"Grade {student.Grade}: " + $"{student.Name} ({student.Score})");
-        double overallAverage = students.Average(s => s.Score);
-        Console.WriteLine($"\nOverall average: {overallAverage:F2}");
-        Console.WriteLine("Above overall average:");
-        var aboveAverage = students.Where(s => s.Score > overallAverage);
-        foreach (var student in aboveAverage) Console.WriteLine($"{student.Name}: {student.Score}");
+        MyStack<int> stack = new();
+        stack.Push(10);
+        stack.Push(20);
+        stack.Push(30);
+        stack.Push(40);
+        stack.Push(50);
+        Console.WriteLine("Count: " + stack.Count);
+        Console.WriteLine("Top: " + stack.Peek());
+        Console.WriteLine("Removed: " + stack.Pop());
+        Console.WriteLine("New top: " + stack.Peek());
+        Console.WriteLine("Count: " + stack.Count);
     }
 }
