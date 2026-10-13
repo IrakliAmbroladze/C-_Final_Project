@@ -2,37 +2,36 @@
 {
     internal class Program
     {
-        static int[] MergeSortedArrays(int[] a, int[] b)
+        static int BinarySearch<T>(T[] arr, T target)
+        where T : IComparable<T>
         {
-            int[] result = new int[a.Length + b.Length];
-
-            int i = 0, j = 0, k = 0;
-
-            while (i < a.Length && j < b.Length)
+            int left = 0;
+            int right = arr.Length - 1;
+            while (left <= right)
             {
-                if (a[i] <= b[j])
-                    result[k++] = a[i++];
+                int mid = left + (right - left) / 2;
+                int comparison = arr[mid].CompareTo(target);
+                if (comparison == 0)
+                    return mid;
+                if (comparison < 0)
+                    left = mid + 1;
                 else
-                    result[k++] = b[j++];
+                    right = mid - 1;
             }
-
-            while (i < a.Length)
-                result[k++] = a[i++];
-
-            while (j < b.Length)
-                result[k++] = b[j++];
-
-            return result;
+            return -1;
         }
         static void Main(string[] args)
         {
-            int[] a = { 1, 3, 5, 7 };
-            int[] b = { 2, 4, 6, 8 };
-            Console.WriteLine("Array 1: [" + string.Join(", ", a) + "]");
-            Console.WriteLine("Array 2: [" + string.Join(", ", b) + "]");
-
-            int[] merged = MergeSortedArrays(a, b);
-            Console.WriteLine("Merged Array: [" + string.Join(", ", merged) + "]");
+            int[] numbers = { 1, 3, 5, 7, 9, 11 };
+            Console.WriteLine($"In [{string.Join(", ", numbers)}]");
+            int target1 = 7; int target2 = 4;
+            Console.WriteLine($"target {target1} is at index " + BinarySearch(numbers, target1));
+            Console.WriteLine($"target {target2} is at index " + BinarySearch(numbers, target2));
+            Console.WriteLine();
+            string[] names = { "Anna", "David", "John", "Maria" };
+            Console.WriteLine($"In [{string.Join(", ", names)}]");
+            string target3 = "David";
+            Console.WriteLine($"target {target3} is at index " + BinarySearch(names, target3));
 
         }
     }
