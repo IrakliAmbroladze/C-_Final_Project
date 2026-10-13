@@ -2,41 +2,38 @@
 {
     internal class Program
     {
-        static bool IsBalanced(string text)
+        static int[] MergeSortedArrays(int[] a, int[] b)
         {
-            Stack<char> stack = new();
-            foreach (char c in text)
+            int[] result = new int[a.Length + b.Length];
+
+            int i = 0, j = 0, k = 0;
+
+            while (i < a.Length && j < b.Length)
             {
-                if (c == '(' || c == '[' || c == '{')
-                {
-                    stack.Push(c);
-                }
-                else if (c == ')' || c == ']' || c == '}')
-                {
-                    if (stack.Count == 0)
-                        return false;
-
-                    char opening = stack.Pop();
-
-                    if ((c == ')' && opening != '(') ||
-                        (c == ']' && opening != '[') ||
-                        (c == '}' && opening != '{'))
-                    {
-                        return false;
-                    }
-                }
+                if (a[i] <= b[j])
+                    result[k++] = a[i++];
+                else
+                    result[k++] = b[j++];
             }
 
-            return stack.Count == 0;
+            while (i < a.Length)
+                result[k++] = a[i++];
+
+            while (j < b.Length)
+                result[k++] = b[j++];
+
+            return result;
         }
         static void Main(string[] args)
         {
-            string example1 = "{[()]}";
-            string example2 = "{[(])}";
-            string example3 = "((()))";
-            Console.WriteLine($"{example1} is {(IsBalanced(example1) ? "balanced" : "not balanced")}");
-            Console.WriteLine($"{example2} is {(IsBalanced(example2) ? "balanced" : "not balanced")}");
-            Console.WriteLine($"{example3} is {(IsBalanced(example3) ? "balanced" : "not balanced")}");
+            int[] a = { 1, 3, 5, 7 };
+            int[] b = { 2, 4, 6, 8 };
+            Console.WriteLine("Array 1: [" + string.Join(", ", a) + "]");
+            Console.WriteLine("Array 2: [" + string.Join(", ", b) + "]");
+
+            int[] merged = MergeSortedArrays(a, b);
+            Console.WriteLine("Merged Array: [" + string.Join(", ", merged) + "]");
+
         }
     }
 }
