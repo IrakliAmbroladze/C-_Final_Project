@@ -1,38 +1,98 @@
 ﻿namespace final_project
 {
-    internal class Program
+    interface ITransaction
     {
-        static int BinarySearch<T>(T[] arr, T target)
-        where T : IComparable<T>
-        {
-            int left = 0;
-            int right = arr.Length - 1;
-            while (left <= right)
-            {
-                int mid = left + (right - left) / 2;
-                int comparison = arr[mid].CompareTo(target);
-                if (comparison == 0)
-                    return mid;
-                if (comparison < 0)
-                    left = mid + 1;
-                else
-                    right = mid - 1;
-            }
-            return -1;
-        }
-        static void Main(string[] args)
-        {
-            int[] numbers = { 1, 3, 5, 7, 9, 11 };
-            Console.WriteLine($"In [{string.Join(", ", numbers)}]");
-            int target1 = 7; int target2 = 4;
-            Console.WriteLine($"target {target1} is at index " + BinarySearch(numbers, target1));
-            Console.WriteLine($"target {target2} is at index " + BinarySearch(numbers, target2));
-            Console.WriteLine();
-            string[] names = { "Anna", "David", "John", "Maria" };
-            Console.WriteLine($"In [{string.Join(", ", names)}]");
-            string target3 = "David";
-            Console.WriteLine($"target {target3} is at index " + BinarySearch(names, target3));
+        void Deposit(decimal amount);
+        void Withdraw(decimal amount);
+    }
+    class InsufficientFundsException : Exception
+    {
+        public InsufficientFundsException() : base("Insufficient funds in the account.") { }
+    }
 
+    abstract class Account : ITransaction
+    {
+        public string Owner { get; }
+        public decimal Balance { get; protected set; }
+        protected Account(string owner, decimal initialBalance)
+        {
+            if (initialBalance < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(initialBalance));
+            Owner = owner;
+            Balance = initialBalance;
+        }
+        public void Deposit(decimal amount)
+        {
+            if (amount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(amount));
+            Balance += amount;
+        }
+        public virtual void Withdraw(decimal amount)
+        {
+            if (amount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(amount));
+
+            if (amount > Balance)
+                throw new InsufficientFundsException();
+
+            Balance -= amount;
+        }
+        public virtual void Display()
+        {
+            Console.WriteLine(
+                $"{Owner}: balance = {Balance:F2}");
+        }
+    }
+    class SavingsAccount : Account
+    {
+        public SavingsAccount(string owner, decimal balance)
+            : base(owner, balance)
+        {
+        }
+        public override void Display()
+        {
+            Console.WriteLine(
+                $"Savings account — {Owner}: {Balance:F2}");
+        }
+    }
+    class CheckingAccount : Account
+    {
+        public CheckingAccount(string owner, decimal balance)
+            : base(owner, balance)
+        {
+        }
+
+        public override void Withdraw(decimal amount)
+        {
+            base.Withdraw(amount);
+        }
+        public override void Display()
+        {
+            Console.WriteLine(
+                $"Checking account — {Owner}: {Balance:F2}");
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Account savings = new SavingsAccount("Anna", 600m);
+            Account checking = new CheckingAccount("David", 500m);
+            savings.Deposit(200m);
+            checking.Withdraw(100m);
+            savings.Display();
+            checking.Display();
+            try
+            {
+                Console.WriteLine($"\nTrying to wothdraw {1000m}");
+                checking.Withdraw(1000m);
+            }
+            catch (InsufficientFundsException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
