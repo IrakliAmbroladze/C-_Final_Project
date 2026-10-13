@@ -1,98 +1,32 @@
-﻿namespace final_project
+﻿class Student
 {
-    interface ITransaction
+    public string Name { get; set; } = "";
+    public int Grade { get; set; }
+    public double Score { get; set; }
+}
+class Program
+{
+    static void Main()
     {
-        void Deposit(decimal amount);
-        void Withdraw(decimal amount);
-    }
-    class InsufficientFundsException : Exception
-    {
-        public InsufficientFundsException() : base("Insufficient funds in the account.") { }
-    }
-
-    abstract class Account : ITransaction
-    {
-        public string Owner { get; }
-        public decimal Balance { get; protected set; }
-        protected Account(string owner, decimal initialBalance)
+        List<Student> students = new()
         {
-            if (initialBalance < 0)
-                throw new ArgumentOutOfRangeException(
-                    nameof(initialBalance));
-            Owner = owner;
-            Balance = initialBalance;
-        }
-        public void Deposit(decimal amount)
-        {
-            if (amount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(amount));
-            Balance += amount;
-        }
-        public virtual void Withdraw(decimal amount)
-        {
-            if (amount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(amount));
-
-            if (amount > Balance)
-                throw new InsufficientFundsException();
-
-            Balance -= amount;
-        }
-        public virtual void Display()
-        {
-            Console.WriteLine(
-                $"{Owner}: balance = {Balance:F2}");
-        }
-    }
-    class SavingsAccount : Account
-    {
-        public SavingsAccount(string owner, decimal balance)
-            : base(owner, balance)
-        {
-        }
-        public override void Display()
-        {
-            Console.WriteLine(
-                $"Savings account — {Owner}: {Balance:F2}");
-        }
-    }
-    class CheckingAccount : Account
-    {
-        public CheckingAccount(string owner, decimal balance)
-            : base(owner, balance)
-        {
-        }
-
-        public override void Withdraw(decimal amount)
-        {
-            base.Withdraw(amount);
-        }
-        public override void Display()
-        {
-            Console.WriteLine(
-                $"Checking account — {Owner}: {Balance:F2}");
-        }
-    }
-
-    class Program
-    {
-        static void Main()
-        {
-            Account savings = new SavingsAccount("Anna", 600m);
-            Account checking = new CheckingAccount("David", 500m);
-            savings.Deposit(200m);
-            checking.Withdraw(100m);
-            savings.Display();
-            checking.Display();
-            try
-            {
-                Console.WriteLine($"\nTrying to wothdraw {1000m}");
-                checking.Withdraw(1000m);
-            }
-            catch (InsufficientFundsException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+            new Student { Name = "Anna", Grade = 10, Score = 85 },
+            new Student { Name = "David", Grade = 10, Score = 92 },
+            new Student { Name = "Maria", Grade = 10, Score = 78 },
+            new Student { Name = "John", Grade = 11, Score = 88 },
+            new Student { Name = "Kate", Grade = 11, Score = 96 },
+            new Student { Name = "Alex", Grade = 11, Score = 80 }
+        };
+        Console.WriteLine("Average score per class:");
+        var averages = students.GroupBy(s => s.Grade).Select(g => new { Grade = g.Key, Average = g.Average(s => s.Score) });
+        foreach (var item in averages) Console.WriteLine($"Grade {item.Grade}: {item.Average:F2}");
+        Console.WriteLine("\nBest student per class:");
+        var bestStudents = students.GroupBy(s => s.Grade).Select(g => g.OrderByDescending(s => s.Score).First());
+        foreach (var student in bestStudents) Console.WriteLine($"Grade {student.Grade}: " + $"{student.Name} ({student.Score})");
+        double overallAverage = students.Average(s => s.Score);
+        Console.WriteLine($"\nOverall average: {overallAverage:F2}");
+        Console.WriteLine("Above overall average:");
+        var aboveAverage = students.Where(s => s.Score > overallAverage);
+        foreach (var student in aboveAverage) Console.WriteLine($"{student.Name}: {student.Score}");
     }
 }
