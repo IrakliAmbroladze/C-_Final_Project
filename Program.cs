@@ -1,45 +1,41 @@
-﻿int[,] RotateNew(int[,] matrix)
+﻿
+string[] Ones ={"zero", "one", "two", "three", "four","five", "six", "seven", "eight", "nine","ten", "eleven",
+         "twelve", "thirteen","fourteen", "fifteen", "sixteen","seventeen", "eighteen", "nineteen"};
+
+string[] Tens = { "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+
+string ConvertBelowThousand(int number)
 {
-    int n = matrix.GetLength(0);
-    int[,] rotated = new int[n, n];
-    for (int row = 0; row < n; row++)
+    string result = "";
+    if (number >= 100)
     {
-        for (int col = 0; col < n; col++) rotated[col, n - 1 - row] = matrix[row, col];
+        result += Ones[number / 100] + " hundred";
+        number %= 100;
+        if (number > 0) result += " ";
     }
-    return rotated;
+    if (number >= 20)
+    {
+        result += Tens[number / 10];
+        number %= 10;
+        if (number > 0) result += "-" + Ones[number];
+    }
+    else if (number > 0) result += Ones[number];
+    return result;
 }
-void RotateInPlace(int[,] matrix)
+string NumberToWords(int number)
 {
-    int n = matrix.GetLength(0);
-    for (int row = 0; row < n; row++)
-        for (int col = row + 1; col < n; col++)
-            (matrix[row, col], matrix[col, row]) = (matrix[col, row], matrix[row, col]);
-    for (int row = 0; row < n; row++)
+    if (number < 0 || number > 999999) throw new ArgumentOutOfRangeException(nameof(number));
+    if (number == 0) return "zero";
+    string result = "";
+    if (number >= 1000)
     {
-        int left = 0;
-        int right = n - 1;
-        while (left < right)
-        {
-            (matrix[row, left], matrix[row, right]) = (matrix[row, right], matrix[row, left]);
-            left++;
-            right--;
-        }
+        result += ConvertBelowThousand(number / 1000) + " thousand";
+        number %= 1000;
+        if (number > 0) result += " ";
     }
+    if (number > 0) result += ConvertBelowThousand(number);
+    return result;
 }
-void PrintMatrix(int[,] matrix)
-{
-    for (int row = 0; row < matrix.GetLength(0); row++)
-    {
-        for (int col = 0; col < matrix.GetLength(1); col++) Console.Write(matrix[row, col] + "\t");
-        Console.WriteLine();
-    }
-}
-int[,] matrix = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
-Console.WriteLine("Original:");
-PrintMatrix(matrix);
-Console.WriteLine("\nRotated into a new matrix:");
-int[,] rotated = RotateNew(matrix);
-PrintMatrix(rotated);
-Console.WriteLine("\nRotated in place:");
-RotateInPlace(matrix);
-PrintMatrix(matrix);
+Console.Write("Enter a number (0-999999): ");
+if (int.TryParse(Console.ReadLine(), out int number) && number >= 0 && number <= 999999) Console.WriteLine(NumberToWords(number));
+else Console.WriteLine("Invalid number.");
