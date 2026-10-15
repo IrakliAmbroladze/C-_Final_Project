@@ -1,40 +1,43 @@
-﻿class MyStack<T>
-{
-    private T[] items = new T[4];
-    private int count;
-    public int Count => count;
-    public void Push(T item)
-    {
-        if (count == items.Length) Array.Resize(ref items, items.Length * 2);
-        items[count++] = item;
-    }
-    public T Pop()
-    {
-        if (count == 0) throw new InvalidOperationException("Stack is empty.");
-        T item = items[--count];
-        items[count] = default!;
-        return item;
-    }
-    public T Peek()
-    {
-        if (count == 0) throw new InvalidOperationException("Stack is empty.");
-        return items[count - 1];
-    }
-}
+﻿using System.Diagnostics;
 class Program
 {
+    static long FibonacciMemo(
+        int n, Dictionary<int, long> memo)
+    {
+        if (n < 0) throw new ArgumentOutOfRangeException(nameof(n));
+        if (n <= 1) return n;
+        if (memo.TryGetValue(n, out long value)) return value;
+        long result = FibonacciMemo(n - 1, memo) + FibonacciMemo(n - 2, memo);
+        memo[n] = result;
+        return result;
+    }
+    static long FibonacciIterative(int n)
+    {
+        if (n < 0) throw new ArgumentOutOfRangeException(nameof(n));
+        if (n <= 1) return n;
+        long previous = 0;
+        long current = 1;
+        for (int i = 2; i <= n; i++)
+        {
+            long next = previous + current;
+            previous = current;
+            current = next;
+        }
+        return current;
+    }
     static void Main()
     {
-        MyStack<int> stack = new();
-        stack.Push(10);
-        stack.Push(20);
-        stack.Push(30);
-        stack.Push(40);
-        stack.Push(50);
-        Console.WriteLine("Count: " + stack.Count);
-        Console.WriteLine("Top: " + stack.Peek());
-        Console.WriteLine("Removed: " + stack.Pop());
-        Console.WriteLine("New top: " + stack.Peek());
-        Console.WriteLine("Count: " + stack.Count);
+        int n = 40;
+        Stopwatch sw = Stopwatch.StartNew();
+        long memoResult = FibonacciMemo(n, new Dictionary<int, long>());
+        sw.Stop();
+        TimeSpan memoTime = sw.Elapsed;
+        sw.Restart();
+        long iterativeResult = FibonacciIterative(n);
+        sw.Stop();
+        Console.WriteLine($"Fibonacci({n}) = {memoResult}");
+        Console.WriteLine($"Memoization: {memoTime.TotalMilliseconds:F4} ms");
+        Console.WriteLine($"Iterative: {sw.Elapsed.TotalMilliseconds:F4} ms");
+        Console.WriteLine($"Results equal: {memoResult == iterativeResult}");
     }
 }
