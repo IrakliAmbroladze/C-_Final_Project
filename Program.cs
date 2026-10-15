@@ -1,43 +1,45 @@
-﻿using System.Diagnostics;
-class Program
+﻿int[,] RotateNew(int[,] matrix)
 {
-    static long FibonacciMemo(
-        int n, Dictionary<int, long> memo)
+    int n = matrix.GetLength(0);
+    int[,] rotated = new int[n, n];
+    for (int row = 0; row < n; row++)
     {
-        if (n < 0) throw new ArgumentOutOfRangeException(nameof(n));
-        if (n <= 1) return n;
-        if (memo.TryGetValue(n, out long value)) return value;
-        long result = FibonacciMemo(n - 1, memo) + FibonacciMemo(n - 2, memo);
-        memo[n] = result;
-        return result;
+        for (int col = 0; col < n; col++) rotated[col, n - 1 - row] = matrix[row, col];
     }
-    static long FibonacciIterative(int n)
+    return rotated;
+}
+void RotateInPlace(int[,] matrix)
+{
+    int n = matrix.GetLength(0);
+    for (int row = 0; row < n; row++)
+        for (int col = row + 1; col < n; col++)
+            (matrix[row, col], matrix[col, row]) = (matrix[col, row], matrix[row, col]);
+    for (int row = 0; row < n; row++)
     {
-        if (n < 0) throw new ArgumentOutOfRangeException(nameof(n));
-        if (n <= 1) return n;
-        long previous = 0;
-        long current = 1;
-        for (int i = 2; i <= n; i++)
+        int left = 0;
+        int right = n - 1;
+        while (left < right)
         {
-            long next = previous + current;
-            previous = current;
-            current = next;
+            (matrix[row, left], matrix[row, right]) = (matrix[row, right], matrix[row, left]);
+            left++;
+            right--;
         }
-        return current;
-    }
-    static void Main()
-    {
-        int n = 40;
-        Stopwatch sw = Stopwatch.StartNew();
-        long memoResult = FibonacciMemo(n, new Dictionary<int, long>());
-        sw.Stop();
-        TimeSpan memoTime = sw.Elapsed;
-        sw.Restart();
-        long iterativeResult = FibonacciIterative(n);
-        sw.Stop();
-        Console.WriteLine($"Fibonacci({n}) = {memoResult}");
-        Console.WriteLine($"Memoization: {memoTime.TotalMilliseconds:F4} ms");
-        Console.WriteLine($"Iterative: {sw.Elapsed.TotalMilliseconds:F4} ms");
-        Console.WriteLine($"Results equal: {memoResult == iterativeResult}");
     }
 }
+void PrintMatrix(int[,] matrix)
+{
+    for (int row = 0; row < matrix.GetLength(0); row++)
+    {
+        for (int col = 0; col < matrix.GetLength(1); col++) Console.Write(matrix[row, col] + "\t");
+        Console.WriteLine();
+    }
+}
+int[,] matrix = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+Console.WriteLine("Original:");
+PrintMatrix(matrix);
+Console.WriteLine("\nRotated into a new matrix:");
+int[,] rotated = RotateNew(matrix);
+PrintMatrix(rotated);
+Console.WriteLine("\nRotated in place:");
+RotateInPlace(matrix);
+PrintMatrix(matrix);
