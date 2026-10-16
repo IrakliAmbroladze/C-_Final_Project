@@ -1,41 +1,53 @@
-﻿
-string[] Ones ={"zero", "one", "two", "three", "four","five", "six", "seven", "eight", "nine","ten", "eleven",
-         "twelve", "thirteen","fourteen", "fifteen", "sixteen","seventeen", "eighteen", "nineteen"};
-
-string[] Tens = { "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
-
-string ConvertBelowThousand(int number)
+﻿class TemperatureChangedEventArgs : EventArgs
 {
-    string result = "";
-    if (number >= 100)
-    {
-        result += Ones[number / 100] + " hundred";
-        number %= 100;
-        if (number > 0) result += " ";
-    }
-    if (number >= 20)
-    {
-        result += Tens[number / 10];
-        number %= 10;
-        if (number > 0) result += "-" + Ones[number];
-    }
-    else if (number > 0) result += Ones[number];
-    return result;
+    public double Temperature { get; }
+    public TemperatureChangedEventArgs(double temperature) { Temperature = temperature; }
 }
-string NumberToWords(int number)
+class Thermometer
 {
-    if (number < 0 || number > 999999) throw new ArgumentOutOfRangeException(nameof(number));
-    if (number == 0) return "zero";
-    string result = "";
-    if (number >= 1000)
+    private double temperature;
+    private readonly double threshold;
+    public event EventHandler<TemperatureChangedEventArgs>? TemperatureChanged;
+    public Thermometer(double threshold)
     {
-        result += ConvertBelowThousand(number / 1000) + " thousand";
-        number %= 1000;
-        if (number > 0) result += " ";
+        this.threshold = threshold;
     }
-    if (number > 0) result += ConvertBelowThousand(number);
-    return result;
+    public void SetTemperature(double value)
+    {
+        temperature = value;
+        Console.WriteLine($"Temperature: {temperature}°C");
+        if (temperature > threshold) TemperatureChanged?.Invoke(this, new TemperatureChangedEventArgs(temperature));
+    }
 }
-Console.Write("Enter a number (0-999999): ");
-if (int.TryParse(Console.ReadLine(), out int number) && number >= 0 && number <= 999999) Console.WriteLine(NumberToWords(number));
-else Console.WriteLine("Invalid number.");
+class Logger
+{
+    public void OnTemperatureChanged(object? sender, TemperatureChangedEventArgs e)
+    {
+        Console.WriteLine($"Logger: high temperature recorded ({e.Temperature}°C).");
+    }
+}
+class Alarm
+{
+    public void OnTemperatureChanged(object? sender, TemperatureChangedEventArgs e)
+    {
+        Console.WriteLine("Alarm: temperature threshold exceeded!");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Thermometer thermometer = new(30);
+        Logger logger = new();
+        Alarm alarm = new();
+        thermometer.TemperatureChanged += logger.OnTemperatureChanged;
+        thermometer.TemperatureChanged += alarm.OnTemperatureChanged;
+        thermometer.SetTemperature(25);
+        thermometer.SetTemperature(35);
+        thermometer.TemperatureChanged -= logger.OnTemperatureChanged;
+        thermometer.TemperatureChanged -= alarm.OnTemperatureChanged;
+        Console.WriteLine("Subscribers removed.");
+        thermometer.SetTemperature(40);
+    }
+}
